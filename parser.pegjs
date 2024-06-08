@@ -9,11 +9,11 @@
 }
 
 start
-  = instructions 
+  = instructions _
 
 // puede aceptar varias cadenas
 instructions 
- = _ rigth:instruction _  left:instructions
+ =_ rigth:instruction _ left:instructions
  / instruction
 
 
@@ -24,6 +24,7 @@ instruction
   / mul
   / div
   / branch
+  / comment
 
 mov
   = "MOV" _ reg:register "," _ op:operand { return { type: "MOV", register: reg, operand: op }; }
@@ -50,8 +51,9 @@ operand
   = immediate
   / register
 
+// registro
 immediate
-  = "#" i:integer { return { type: "IMMEDIATE", value: toInteger(text().substring(1)) }; }
+  = "#"? i:integer { return { type: "IMMEDIATE", value: toInteger(text().substring(1)) }; }
 
 
 condition
@@ -61,7 +63,11 @@ condition
 integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
 
-label
+// comentario simple
+comment "coment"
+  = "//" [^\n]*
+
+label "label"
   = [a-zA-Z_][a-zA-Z0-9_]* { return { type: "LABEL", value: text() }; }
 
 
