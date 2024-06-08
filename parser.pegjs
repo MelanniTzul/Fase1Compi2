@@ -1,13 +1,14 @@
 // Grammar Arquitecture ARM 64
 // ==========================
 
-// reconoce entero
-Integer "integer"
-  = _ [0-9]+ { return parseInt(text(), 10); }
-
 // reconoce comentarios
 Coment "coment"
   = "//".* 
+
+
+// reconoce entero
+Integer "integer"
+  = _ i:[0-9]+ 
 
 // espacios, saltos de linea y tab
 _ "whitespace"
