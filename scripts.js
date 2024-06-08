@@ -13,18 +13,19 @@ fetch('html/tabs.html')
     .then(response => response.text())
     .then(data => document.getElementById('tabs').innerHTML = data);
 
-function saludo() {
-    alert("hola Douglas");
-}
 
 function optimizar() {
     alert("Optimizado con exito xd");
 }
+function salud(){
+    alert("funciona mel");
+ }
+
 
 function CargarArchivo() {
+    
     const fileInput = document.getElementById('fileInput');
     const textarea = document.getElementById('textoEntrada');
-
     const file = fileInput.files[0];
     if (file) {
         const reader = new FileReader();
@@ -35,8 +36,13 @@ function CargarArchivo() {
         };
 
         reader.readAsText(file);
-        alert("Archivo cargado con exito");
     }
+}
+function limpiar() {
+    const textarea = document.getElementById('textoEntrada');
+    textarea.value = '';
+    fileInput.value = '';
+    actualizarLineas();
 }
 
 function actualizarLineas() {
@@ -44,4 +50,11 @@ function actualizarLineas() {
     const lineNumbers = document.getElementById('lineNumbers');
     const lines = textarea.value.split('\n').length;
     lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+    syncScroll();
+}
+
+function syncScroll() {
+    const textarea = document.getElementById('textoEntrada');
+    const lineNumbers = document.getElementById('lineNumbers');
+    lineNumbers.scrollTop = textarea.scrollTop;
 }

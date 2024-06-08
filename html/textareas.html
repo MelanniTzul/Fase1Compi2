@@ -1,9 +1,10 @@
-<div class="row">
-    <div class="col-6 textarea-container">
-        <div class="line-numbers" id="lineNumbers"></div>
-        <textarea id="textoEntrada" class="form-control" rows="10" placeholder="Texto de entrada" oninput="actualizarLineas()"></textarea>
+<div class="row-2 d-flex justify-content-center">
+    <div class="p-1 col-6 textarea-container" style="max-height: 300px; overflow-y: hidden; position: relative;">
+        <div class="line-numbers" id="lineNumbers" style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px; overflow-y: hidden;"></div>
+        <textarea id="textoEntrada" class="form-control" style="margin-left: 40px; overflow-y: scroll;" rows="10" placeholder="Texto de entrada" oninput="actualizarLineas()" onscroll="syncScroll()"></textarea>
     </div>
-    <div class="col-6">
+    
+    <div class="p-1 col-6 flex">
         <textarea class="form-control" rows="10" placeholder="Texto de salida"></textarea>
     </div>
 </div>

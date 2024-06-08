@@ -2,10 +2,13 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand ms-4 text-bg-primary" href="#">Compilador</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <button type="button" class="btn btn-light me-2" onclick="saludo()">Traducir</button>
-            <button type="button" class="btn btn-secondary" onclick="optimizar()">Optimizar</button>
-            <input type="file" id="fileInput" class="form-control-file" onchange="CargarArchivo()">
+        <div class="collapse navbar-collapse justify-content-center">
+            <input style="width: 400px;" type="file" class="form-control me-2" id="fileInput" aria-describedby="fileInput" aria-label="Upload" onchange="CargarArchivo()">
+        </div>
+        <div class="collapse navbar-collapse justify-content-center">
+            <button type="button" class="btn btn-light me-2" onclick="salud()">Traducir</button>
+            <button type="button" class="btn btn-secondary me-2" onclick="optimizar()">Optimizar</button>
+            <button type="button" id="btnLimpiar" class="btn btn-danger me-2" onclick="limpiar()">Limpiar</button>
         </div>
     </div>
 </nav>
