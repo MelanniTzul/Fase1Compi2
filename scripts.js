@@ -16,3 +16,19 @@ fetch('html/navbar.html')
         function optimizar(){
             alert("Optimizado con exito xd");
         }
+        function CargarArchivo(){
+            const fileInput = document.getElementById('fileInput');
+            const textarea = document.getElementById('textoEntrada');
+
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    textarea.value = e.target.result;
+                };
+
+                reader.readAsText(file);
+                alert("Archivo cargado con exito");
+            }
+        }
