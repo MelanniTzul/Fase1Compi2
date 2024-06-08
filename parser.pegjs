@@ -64,7 +64,7 @@ Integer "integer"
   = _ [0-9]+ { return parseInt(text(), 10); }
 
 // reconoce comentarios
-Coment "coment"
+comment "coment"
   = "//".* 
 
 // espacios, saltos de linea y tab
