@@ -60,8 +60,11 @@ condition
   = "EQ" / "NE" / "GT" / "LT" / "GE" / "LE" { return text(); }
 
 // reconoce entero
-Integer "integer"
+integer "integer"
   = _ [0-9]+ { return parseInt(text(), 10); }
+
+label "label"
+  = [a-zA-Z_][a-zA-Z0-9_]* { return { type: "LABEL", value: text() }; }
 
 // reconoce comentarios
 comment "coment"
