@@ -1,19 +1,6 @@
 // Grammar Arquitecture ARM 64
 // ==========================
 
-// reconoce entero
-Integer "integer"
-  = _ [0-9]+ { return parseInt(text(), 10); }
-
-// reconoce comentarios
-Coment "coment"
-  = "//".* 
-
-// espacios, saltos de linea y tab
-_ "whitespace"
-  = [ \t\n\r]*
-
-
   // Función de ayuda para convertir los valores de los registros
 {
   function toInteger(value) {
@@ -22,7 +9,13 @@ _ "whitespace"
 }
 
 start
-  = _ instruction* _
+  = instructions 
+
+// puede aceptar varias cadenas
+instructions 
+ = _ rigth:instruction _  left:instructions
+ / instruction
+
 
 instruction
   = mov
@@ -58,14 +51,20 @@ operand
   / register
 
 immediate
-  = "#" [0-9]+ { return { type: "IMMEDIATE", value: toInteger(text().substring(1)) }; }
+  = "#" i:integer { return { type: "IMMEDIATE", value: toInteger(text().substring(1)) }; }
+
 
 condition
   = "EQ" / "NE" / "GT" / "LT" / "GE" / "LE" { return text(); }
 
+// reconoce entero
+integer "integer"
+  = [0-9]+ { return parseInt(text(), 10); }
+
 label
   = [a-zA-Z_][a-zA-Z0-9_]* { return { type: "LABEL", value: text() }; }
 
+
 // Ignorar espacios en blanco y comentarios
-_ 
-  = [ \t\n\r]* { return null; }
+_  "whitespace"
+  = [ \t\n\r]* 
