@@ -44,7 +44,26 @@ function limpiar() {
     fileInput.value = '';
     actualizarLineas();
 }
+function guardarArchivo() {
+    const textarea = document.getElementById('textoEntrada');
+    const texto = textarea.value;
 
+    if (texto.trim() === "") {
+        alert("El área de texto está vacía. Por favor, ingrese algún texto antes de guardar.");
+        return;
+    }
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "archivo.s";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+}
 function actualizarLineas() {
     const textarea = document.getElementById('textoEntrada');
     const lineNumbers = document.getElementById('lineNumbers');
