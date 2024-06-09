@@ -6,17 +6,47 @@
   function toInteger(value) {
     return Number(value);
   }
+  class node{
+    constructor( value, left=null, right=null) {
+    	this.value = value;
+        this.right = right;
+    	this.left = left;
+    }
+  }
+    function generateDot(root) {
+    let dot = "graph G {\n";
+    let counter = { count: 0 };
+
+  function traverse(node) {
+  let current = counter.count++;
+  dot += `  ${current} [label="${node.value}"];\n`;
+  if (node.left) {
+  let left = traverse(node.left);
+  dot += `  ${current} -- ${left};\n`;
+  }
+  if (node.right) {
+  let right = traverse(node.right);
+  dot += `  ${current} -- ${right};\n`;
+  }
+  return current;
+  }
+  traverse(root);
+  dot += "}\n";
+  return dot;
+    }
   
 }
+start
+ = ini:instructions 
 
 // puede aceptar varias cadenas
 instructions 
- = _ rigth:instruction _ left:instructions _
- / instruction
+ = _ left:instruction _ right:instructions _ {return new node("instruction",left,right);}
+ / value:instruction {return (value===null)? null: new node(value);}
 
 
 instruction "instruction"
-  = "MOV "i  right:register "," _ left:operand { return {type:"mov",right:right, left:left }; }
+  = "MOV "i  left:register "," _ right:operand { return new node("mov",left,right); }
   / "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
@@ -24,16 +54,16 @@ instruction "instruction"
   / "B."i cond:condition _ lbl:label
   / comment {return null;}
   
-operand
-  = immediate
-  / register
+operand 
+  = value:immediate {return value;} 
+  / value:register {return value;}
 
 register "register x"
-  = "x"i num:integer {let n=num; return (num >=0 && num<32)? n: undefined;}
+  = "x"i num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
   
 // registro
 immediate
-  = "#"? i:integer { return i; }
+  = "#"? i:integer { return new node(i); }
 
 
 condition
@@ -52,4 +82,4 @@ comment "coment"
 
 // espacios, saltos de linea y tab
 _ "whitespace"
-  = [ \t\n\r]* {return null;}
+  = [ \t\n\r]* {return null;}  
