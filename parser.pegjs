@@ -37,7 +37,7 @@
   
 }
 start
- = ini:instructions 
+ = ini:instructions {return generateDot(ini);}
 
 // puede aceptar varias cadenas
 instructions 
