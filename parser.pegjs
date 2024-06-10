@@ -51,6 +51,10 @@ instruction "instruction"
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
   / "DIV "i dest:register "," _ src1:register "," _ src2:operand
+  / "FMOV"i dest:register "," _ op:float_operand {return new node(fmov,left,right)}
+  / "FADD"i dest:register "," _ src1:register "," src2:float_operand
+  / "FSUB"i dest:register "," _ src1:register "," src2:float_operand
+  / "FDIV"i dest:register "," _ src1:register "," src2:float_operand
   / "B."i cond:condition _ lbl:label
   / comment {return null;}
   
@@ -83,3 +87,13 @@ comment "coment"
 // espacios, saltos de linea y tab
 _ "whitespace"
   = [ \t\n\r]* {return null;}  
+
+ //Decimales 
+ float "float"
+  =entero:[0-9]*"."decimal:[0-9]+ {return toFloat(entero, decimal);}
+ floatante "decimal"
+  ="#"float
+
+  float_operand
+  = floatante
+  / register
