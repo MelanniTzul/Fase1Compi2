@@ -13,27 +13,34 @@
     	this.left = left;
     }
   }
-    function generateDot(root) {
+  function generateDot(root) {
     let dot = "graph G {\n";
     let counter = { count: 0 };
 
-  function traverse(node) {
-  let current = counter.count++;
-  dot += `  ${current} [label="${node.value}"];\n`;
-  if (node.left) {
-  let left = traverse(node.left);
-  dot += `  ${current} -- ${left};\n`;
-  }
-  if (node.right) {
-  let right = traverse(node.right);
-  dot += `  ${current} -- ${right};\n`;
-  }
-  return current;
-  }
-  traverse(root);
-  dot += "}\n";
-  return dot;
+    function traverse(node) {
+      let current = counter.count++;
+      
+      if ( typeof node.value === 'object') {
+      	let left = traverse(node.value);
+   		  dot += `  ${current} -- ${left};\n`;
+      } else {
+        dot += `  ${current} [label="${node.value}"];\n`;
+      }
+
+      if (node.left) {
+        let left = traverse(node.left);
+        dot += `  ${current} -- ${left};\n`;
+      }
+      if (node.right) {
+        let right = traverse(node.right);
+        dot += `  ${current} -- ${right};\n`;
+      }
+      return current;
     }
+    traverse(root);
+    dot += "}\n";
+    return dot;
+  }
   
 }
 start
