@@ -44,29 +44,40 @@
   
 }
 start
- = ini:instructions {return generateDot(ini);}
+ = instructions// ".global_start"i _ comment* section {/*return generateDot(ini);*/} */
+ 
+section 
+ = _".start" instructions
+
+
 
 // puede aceptar varias cadenas
-instructions 
- = _ left:instruction _ right:instructions _ {return new node("instruction",left,right);}
- / value:instruction {return (value===null)? null: new node(value);}
-
+instructions "instructions"
+ = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
 
 instruction "instruction"
-  = "MOV "i  left:register "," _ right:operand { return new node("mov",left,right); }
-  / "ADD "i dest:register "," _ src1:register "," _ src2:operand 
+  = asignate
+  / operation
+  / "B."i cond:condition _ lbl:label
+  / "SVC "i left:immediate
+  / comment {/*return null;*/}
+  
+operation
+  = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
   / "DIV "i dest:register "," _ src1:register "," _ src2:operand
-  / "B."i cond:condition _ lbl:label
-  / comment {return null;}
-  
+
+asignate
+ = "MOV "i  left:register "," _ right:immediate
+ / "FMOV"i left:register "," _ 
+ 
 operand 
   = value:immediate {return value;} 
   / value:register {return value;}
 
 register "register x"
-  = "x"i num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
+  = ["x"i/"w"i] num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
   
 // registro
 immediate
@@ -85,8 +96,8 @@ label "label"
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* {return null; }
+  = "//" [^\n]*  / ";" [^\n]* 
 
 // espacios, saltos de linea y tab
 _ "whitespace"
-  = [ \t\n\r]* {return null;}  
+  = [ \t\n\r]* {return null;} 
