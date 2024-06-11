@@ -43,6 +43,7 @@
   }
   
 }
+
 start
  = instructions// ".global_start"i _ comment* section {/*return generateDot(ini);*/} */
  
@@ -57,6 +58,7 @@ instructions "instructions"
 
 instruction "instruction"
   = asignate
+  / "b "i label
   / operation
   / logic
   / move
@@ -65,11 +67,11 @@ instruction "instruction"
   / comment {/*return null;*/}
 
 logic
- = "AND"i dest:register "," _ src1:register"," _ src2:register
- / "ORR"i dest:register "," _ src1:register"," _ src2:register
- / "EOR"i dest:register "," _ src1:register"," _ src2:register
- / "MVN"i dest:register "," _ src1:register
- / "CMP"i dest:register "," _ src1:register
+ = "AND "i dest:register "," _ src1:register"," _ src2:register
+ / "ORR "i dest:register "," _ src1:register"," _ src2:register
+ / "EOR "i dest:register "," _ src1:register"," _ src2:register
+ / "MVN "i dest:register "," _ src1:register
+ / "CMP "i dest:register "," _ src1:register
  
  move "move"
  = "LSL"i
