@@ -69,16 +69,18 @@ logic
  / "ORR "i dest:register "," _ src1:register"," _ src2:register
  / "EOR "i dest:register "," _ src1:register"," _ src2:register
  / "MVN "i dest:register "," _ src1:register
- / "CMP "i dest:register "," _ src1:register _ relacionales // continuaciones de cmp
+ / "CMP "i dest:operand "," _ src1:operand _ comment? _ b // continuaciones de cmp
  
  b // solo como pivote para que se vea bonito xD
-  ="b "i
+  = relacionales  _ b
+  /relacionales 
+  
 // Condicionales para cmp
  relacionales
-  ="b.eq "i label //Igualdad
-  /"b.ne "i label //desigualdad
-  /"b.lt "i label //menor que
-  /"b.gt "i label // mayor que
+  ="b.eq "i label comment?//Igualdad
+  /"b.ne "i label comment?//desigualdad
+  /"b.lt "i label comment?//menor que
+  /"b.gt "i label comment?// mayor que
 
  move "move"
  = "LSL "i dest:register "," _ src1:register"," _ src2:immediate
