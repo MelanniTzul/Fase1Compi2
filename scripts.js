@@ -92,19 +92,33 @@ function highlightError(input, location) {
     const errorLine = lines[start.line - 1];
   
     // Crear un marcador para resaltar el error
-    const marker = ' '.repeat(start.column - 1) + '^'.repeat(end.column - start.column);
+    const marker = ' '.repeat(start.column - 1) + '^'.repeat(Math.max(1, end.column - start.column));
   
     return `${errorLine}\n${marker}`;
+  }
+  
+  // Función para traducir los mensajes de error
+  function translateErrorMessage(message) {
+    if (message.includes("Expected end of input")) {
+      return "Se esperaba el fin de la entrada";
+    } else if (message.includes("Expected")) {
+      const expected = message.match(/Expected (.+) but/)[1].replace(/"/g, '');
+      const found = message.match(/but "(.+)" found/)[1];
+      return `Se esperaba ${expected} pero se encontró "${found}"`;
+    }
+    return message;
   }
   
   // Función para formatear el mensaje de error
   function formatError(error, input) {
     const { message, location } = error;
-    const { start, end } = location;
+    const { start } = location;
   
+    const translatedMessage = translateErrorMessage(message);
     const highlightedError = highlightError(input, location);
-    return `Error: ${message}\nAt line ${start.line}, column ${start.column}:\n${highlightedError}`;
+    return `Error: ${translatedMessage}\nEn la línea ${start.line}, columna ${start.column}:\n${highlightedError}`;
   }
+  
   
 function CargarArchivo() {
     
