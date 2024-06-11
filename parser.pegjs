@@ -13,48 +13,82 @@
     	this.left = left;
     }
   }
-    function generateDot(root) {
+  function generateDot(root) {
     let dot = "graph G {\n";
     let counter = { count: 0 };
 
-  function traverse(node) {
-  let current = counter.count++;
-  dot += `  ${current} [label="${node.value}"];\n`;
-  if (node.left) {
-  let left = traverse(node.left);
-  dot += `  ${current} -- ${left};\n`;
-  }
-  if (node.right) {
-  let right = traverse(node.right);
-  dot += `  ${current} -- ${right};\n`;
-  }
-  return current;
-  }
-  traverse(root);
-  dot += "}\n";
-  return dot;
+    function traverse(node) {
+      let current = counter.count++;
+      
+      if ( typeof node.value === 'object') {
+      	let left = traverse(node.value);
+   		  dot += `  ${current} -- ${left};\n`;
+      } else {
+        dot += `  ${current} [label="${node.value}"];\n`;
+      }
+
+      if (node.left) {
+        let left = traverse(node.left);
+        dot += `  ${current} -- ${left};\n`;
+      }
+      if (node.right) {
+        let right = traverse(node.right);
+        dot += `  ${current} -- ${right};\n`;
+      }
+      return current;
     }
+    traverse(root);
+    dot += "}\n";
+    return dot;
+  }
   
 }
 start
- = ini:instructions {return generateDot(ini);}
+ = instructions// ".global_start"i _ comment* section {/*return generateDot(ini);*/} */
+ 
+section 
+ = _".start" instructions
+
+
 
 // puede aceptar varias cadenas
-instructions 
- = _ left:instruction _ right:instructions _ {return new node("instruction",left,right);}
- / value:instruction {return (value===null)? null: new node(value);}
-
+instructions "instructions"
+ = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
 
 instruction "instruction"
-  = "MOV "i  left:register "," _ right:operand { return new node("mov",left,right); }
-  / "ADD "i dest:register "," _ src1:register "," _ src2:operand 
+  = asignate
+  / operation
+  / logic
+  / move
+  / "B."i cond:condition _ lbl:label
+  / "SVC "i left:immediate
+  / comment {/*return null;*/}
+
+logic
+ = "AND"i dest:register "," _ src1:register"," _ src2:register
+ / "ORR"i dest:register "," _ src1:register"," _ src2:register
+ / "EOR"i dest:register "," _ src1:register"," _ src2:register
+ / "MVN"i dest:register "," _ src1:register
+ / "CMP"i dest:register "," _ src1:register relaciones // continuaciones de cmp
+ 
+ b // solo como pivote para que se vea bonito xD
+  ="b"i
+// Condicionales para cmp
+ relacionales
+  =b".eq"i label //Igualdad
+  /b".ne"i label //desigualdad
+  /b".lt"i label //menor que
+  /b"gt"i label // mayor que
+
+ move "move"
+ = "LSL"i dest:register "," _ src1:register"," _ src2:immediate
+ / "LSR"i dest:register "," _ src1:register"," _ src2:immediate
+
+operation "operation"
+  = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
   / "DIV "i dest:register "," _ src1:register "," _ src2:operand
-  / "FMOV"i dest:register "," _ op:float_operand {return new node(fmov,left,right)}
-  / "FADD"i dest:register "," _ src1:register "," src2:float_operand
-  / "FSUB"i dest:register "," _ src1:register "," src2:float_operand
-  / "FDIV"i dest:register "," _ src1:register "," src2:float_operand
   / "B."i cond:condition _ lbl:label
   / comment {return null;}
   
@@ -63,12 +97,12 @@ operand
   / value:register {return value;}
 
 register "register x"
-  = "x"i num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
+  = ["x"i/"w"i] num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
   
 // registro
 immediate
-  = "#"? i:integer { return new node(i); }
-
+  = "#"? "0b"binaryDigits:[01]+ {return parseInt(binaryDigits, 2);}
+  / "#"? num:integer {return Number(num);}
 
 condition
   = "EQ" / "NE" / "GT" / "LT" / "GE" / "LE"
@@ -76,24 +110,19 @@ condition
 // reconoce entero
 integer "integer"
   = num:[0-9]+ {return Number(num.join("")); }
+  
+// operacion del float
+float_operand "operation_float"
+  = "#"? entero:[0-9]*"."decimal:[0-9]+
+  / register
 
 label "label"
   = [a-zA-Z_][a-zA-Z0-9_]*
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* {return null; }
+  = "//" [^\n]*  / ";" [^\n]* 
 
 // espacios, saltos de linea y tab
 _ "whitespace"
   = [ \t\n\r]* {return null;}  
-
- //Decimales 
- float "float"
-  =entero:[0-9]*"."decimal:[0-9]+ {return toFloat(entero, decimal);}
- floatante "decimal"
-  ="#"float
-
-  float_operand
-  = floatante
-  / register
