@@ -58,21 +58,32 @@ instructions "instructions"
 instruction "instruction"
   = asignate
   / operation
+  / logic
+  / move
   / "B."i cond:condition _ lbl:label
   / "SVC "i left:immediate
   / comment {/*return null;*/}
-  
-operation
+
+logic
+ = "AND"i dest:register "," _ src1:register"," _ src2:register
+ / "ORR"i dest:register "," _ src1:register"," _ src2:register
+ / "EOR"i dest:register "," _ src1:register"," _ src2:register
+ / "MVN"i dest:register "," _ src1:register
+ / "CMP"i dest:register "," _ src1:register
+ 
+ move "move"
+ = "LSL"i
+ / "LSR"i
+operation "operation"
   = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
   / "DIV "i dest:register "," _ src1:register "," _ src2:operand
 
-asignate
- = "MOV "i  left:register "," _ right:immediate
- / "FMOV"i left:register "," _ 
- 
-operand 
+asignate "asignate"
+ = "FMOV "i dest:register "," _ op:float_operand
+ / "MOV "i  left:register "," _ right:immediate
+operand "operand"
   = value:immediate {return value;} 
   / value:register {return value;}
 
@@ -81,8 +92,8 @@ register "register x"
   
 // registro
 immediate
-  = "#"? i:integer { return new node(i); }
-
+  = "#"? "0b"binaryDigits:[01]+ {return parseInt(binaryDigits, 2);}
+  / "#"? num:integer {return Number(num);}
 
 condition
   = "EQ" / "NE" / "GT" / "LT" / "GE" / "LE"
@@ -90,6 +101,11 @@ condition
 // reconoce entero
 integer "integer"
   = num:[0-9]+ {return Number(num.join("")); }
+  
+// operacion del float
+float_operand "operation_float"
+  = "#"? entero:[0-9]*"."decimal:[0-9]+
+  / register
 
 label "label"
   = [a-zA-Z_][a-zA-Z0-9_]*
