@@ -22,3 +22,7 @@ textarea {
     box-sizing: border-box;
     resize: none;
 }
+.flex-container {
+    height: 50vh; 
+    width: 85vw; 
+}

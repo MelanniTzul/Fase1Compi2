@@ -17,15 +17,99 @@ fetch('html/tabs.html')
 function optimizar() {
     alert("Optimizado con exito xd");
 }
-function salud(){
-    alert("funciona mel");
- }
+// function loadTree(){
+//     let x;
+//         x = document.getElementById("x").value;
+//         var container = document.getElementById("mynetwork");
+//         var DOTstring = PEG.parse(x);
+//         var parsedData = vis.parseDOTNetwork(DOTstring);
+//         var data = {
+//             nodes: parsedData.nodes,
+//             edges: parsedData.edges
+//         }
+//         var options = {
+//             nodes: {
+//                 widthConstraint: 20,
+//             },        
+//             layout: {
+//                 hierarchical: {
+//                     levelSeparation: 60,
+//                     nodeSpacing: 80,
+//                     parentCentralization: true,
+//                     direction: 'UD',        // UD, DU, LR, RL
+//                     sortMethod: 'directed',  // hubsize, directed
+//                     shakeTowards: 'roots'  // roots, leaves                        
+//                 },
+//             },
+//             nodes: {
+//                 while: 85,
+//               },                         
+//         };
+//         var network = new vis.Network(container, data, options);
+//  }
 
+function loadTree() {
+    let x = document.getElementById("x").value;
+    var networkDiv = document.getElementById("mynetwork");
 
+    try {
+        var DOTstring = PEG.parse(x);
+        console.log('esto trae', DOTstring);
+        lo.textContent = DOTstring; // Mostrar el mensaje de error en el div
+        var parsedData = vis.parseDOTNetwork(DOTstring);
+        var data = {
+            nodes: parsedData.nodes,
+            edges: parsedData.edges
+        };
+        var options = {
+            nodes: {
+                widthConstraint: 20
+            },        
+            layout: {
+                hierarchical: {
+                    levelSeparation: 60,
+                    nodeSpacing: 80,
+                    parentCentralization: true,
+                    direction: 'UD',        // UD, DU, LR, RL
+                    sortMethod: 'directed',  // hubsize, directed
+                    shakeTowards: 'roots'  // roots, leaves                        
+                }
+            },
+            nodes: {
+                 while: 85,
+                }, 
+        };
+        var network = new vis.Network(networkDiv, data, options);
+    } catch (err) {
+        lo.textContent = formatError(err, x);
+        console.error("Error:", err.message);
+    }
+}
+
+function highlightError(input, location) {
+    const lines = input.split('\n');
+    const { start, end } = location;
+    const errorLine = lines[start.line - 1];
+  
+    // Crear un marcador para resaltar el error
+    const marker = ' '.repeat(start.column - 1) + '^'.repeat(end.column - start.column);
+  
+    return `${errorLine}\n${marker}`;
+  }
+  
+  // Función para formatear el mensaje de error
+  function formatError(error, input) {
+    const { message, location } = error;
+    const { start, end } = location;
+  
+    const highlightedError = highlightError(input, location);
+    return `Error: ${message}\nAt line ${start.line}, column ${start.column}:\n${highlightedError}`;
+  }
+  
 function CargarArchivo() {
     
     const fileInput = document.getElementById('fileInput');
-    const textarea = document.getElementById('textoEntrada');
+    const textarea = document.getElementById('x');
     const file = fileInput.files[0];
     if (file) {
         const reader = new FileReader();
@@ -38,15 +122,19 @@ function CargarArchivo() {
         reader.readAsText(file);
     }
 }
-function limpiar() {
-    const textarea = document.getElementById('textoEntrada');
+function clean() {
+    const textarea = document.getElementById('x');
     textarea.value = '';
     fileInput.value = '';
+    log.innerHTML = '';
+    lo.innerHTML = '';
+    const container = document.getElementById('mynetwork');
+            container.innerHTML = '';
     actualizarLineas();
 }
 
 function actualizarLineas() {
-    const textarea = document.getElementById('textoEntrada');
+    const textarea = document.getElementById('x');
     const lineNumbers = document.getElementById('lineNumbers');
     const lines = textarea.value.split('\n').length;
     lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
@@ -54,7 +142,28 @@ function actualizarLineas() {
 }
 
 function syncScroll() {
-    const textarea = document.getElementById('textoEntrada');
+    const textarea = document.getElementById('x');
     const lineNumbers = document.getElementById('lineNumbers');
     lineNumbers.scrollTop = textarea.scrollTop;
+}
+
+function guardarArchivo() {
+    const textarea = document.getElementById('x');
+    const texto = textarea.value;
+
+    if (texto.trim() === "") {
+        alert("El área de texto está vacía. Por favor, ingrese algún texto antes de guardar.");
+        return;
+    }
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "archivo.s";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
 }

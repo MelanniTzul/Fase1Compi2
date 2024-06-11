@@ -1,14 +1,21 @@
-
 <nav class="navbar navbar-expand-lg navbar-light bg-primary">
     <div class="container-fluid">
-        <a class="navbar-brand ms-4 text-bg-primary" href="#">Compilador</a>
-        <div class="collapse navbar-collapse justify-content-center">
-            <input style="width: 400px;" type="file" class="form-control me-2" id="fileInput" aria-describedby="fileInput" aria-label="Upload" onchange="CargarArchivo()">
-        </div>
-        <div class="collapse navbar-collapse justify-content-center">
-            <button type="button" class="btn btn-light me-2" onclick="salud()">Traducir</button>
-            <button type="button" class="btn btn-secondary me-2" onclick="optimizar()">Optimizar</button>
-            <button type="button" id="btnLimpiar" class="btn btn-danger me-2" onclick="limpiar()">Limpiar</button>
+        <a class="navbar-brand ms-4 text-bg-primary m-2" href="#">Compilador</a>
+        
+        <!-- Botón para colapsar en dispositivos pequeños -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse justify-content-evenly" id="navbarNav">
+            <input style="width: 100%; max-width: 400px;" type="file" class="form-control me-2 mb-2 mb-lg-0" id="fileInput" accept=".s" aria-describedby="fileInput" aria-label="Upload" onchange="CargarArchivo()">
+            
+            <div class="d-flex flex-column flex-lg-row align-items-center">
+                <button type="button" id="myButton" class="btn btn-light me-2 mb-2 mb-lg-0" onclick="loadTree()">Generar AST</button>
+                <button type="button"  class="btn btn-dark me-2 mb-2 mb-lg-0" onclick="guardarArchivo()">Guardar Archivo</button>
+                <!-- <button type="button" class="btn btn-secondary me-2 mb-2 mb-lg-0" onclick="optimizar()">Optimizar</button> -->
+                <button type="button" id="btnLimpiar" class="btn btn-danger me-2 mb-2 mb-lg-0" onclick="clean()">Limpiar</button>
+            </div>
         </div>
     </div>
 </nav>
