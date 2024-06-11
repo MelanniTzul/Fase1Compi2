@@ -65,34 +65,35 @@ instruction "instruction"
   / comment {/*return null;*/}
 
 logic
- = "AND"i dest:register "," _ src1:register"," _ src2:register
- / "ORR"i dest:register "," _ src1:register"," _ src2:register
- / "EOR"i dest:register "," _ src1:register"," _ src2:register
- / "MVN"i dest:register "," _ src1:register
- / "CMP"i dest:register "," _ src1:register relaciones // continuaciones de cmp
+ = "AND "i dest:register "," _ src1:register"," _ src2:register
+ / "ORR "i dest:register "," _ src1:register"," _ src2:register
+ / "EOR "i dest:register "," _ src1:register"," _ src2:register
+ / "MVN "i dest:register "," _ src1:register
+ / "CMP "i dest:register "," _ src1:register _ relacionales // continuaciones de cmp
  
  b // solo como pivote para que se vea bonito xD
-  ="b"i
+  ="b "i
 // Condicionales para cmp
  relacionales
-  =b".eq"i label //Igualdad
-  /b".ne"i label //desigualdad
-  /b".lt"i label //menor que
-  /b"gt"i label // mayor que
+  ="b.eq "i label //Igualdad
+  /"b.ne "i label //desigualdad
+  /"b.lt "i label //menor que
+  /"b.gt "i label // mayor que
 
  move "move"
- = "LSL"i dest:register "," _ src1:register"," _ src2:immediate
- / "LSR"i dest:register "," _ src1:register"," _ src2:immediate
+ = "LSL "i dest:register "," _ src1:register"," _ src2:immediate
+ / "LSR "i dest:register "," _ src1:register"," _ src2:immediate
 
 operation "operation"
   = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
   / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
   / "DIV "i dest:register "," _ src1:register "," _ src2:operand
-  / "B."i cond:condition _ lbl:label
-  / comment {return null;}
-  
-operand 
+
+asignate "asignate"
+ = "FMOV "i dest:register "," _ op:float_operand
+ / "MOV "i  left:register "," _ right:immediate
+operand "operand"
   = value:immediate {return value;} 
   / value:register {return value;}
 
@@ -125,4 +126,4 @@ comment "coment"
 
 // espacios, saltos de linea y tab
 _ "whitespace"
-  = [ \t\n\r]* {return null;}  
+  = [ \t\n\r]* {return null;} 
