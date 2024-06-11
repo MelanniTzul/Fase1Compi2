@@ -81,12 +81,31 @@ function loadTree() {
         };
         var network = new vis.Network(networkDiv, data, options);
     } catch (err) {
-        lo.textContent = "Error:" + err.message;
+        lo.textContent = formatError(err, x);
         console.error("Error:", err.message);
     }
 }
 
-
+function highlightError(input, location) {
+    const lines = input.split('\n');
+    const { start, end } = location;
+    const errorLine = lines[start.line - 1];
+  
+    // Crear un marcador para resaltar el error
+    const marker = ' '.repeat(start.column - 1) + '^'.repeat(end.column - start.column);
+  
+    return `${errorLine}\n${marker}`;
+  }
+  
+  // Función para formatear el mensaje de error
+  function formatError(error, input) {
+    const { message, location } = error;
+    const { start, end } = location;
+  
+    const highlightedError = highlightError(input, location);
+    return `Error: ${message}\nAt line ${start.line}, column ${start.column}:\n${highlightedError}`;
+  }
+  
 function CargarArchivo() {
     
     const fileInput = document.getElementById('fileInput');
