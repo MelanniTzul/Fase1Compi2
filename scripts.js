@@ -51,7 +51,6 @@ function optimizar() {
 function loadTree() {
     let x = document.getElementById("x").value;
     var networkDiv = document.getElementById("mynetwork");
-    log.innerHTML = ""; 
 
     try {
         var DOTstring = PEG.parse(x);
@@ -109,7 +108,7 @@ function clean() {
     textarea.value = '';
     fileInput.value = '';
     log.innerHTML = '';
-    lo.value = '';
+    lo.innerHTML = '';
     const container = document.getElementById('mynetwork');
             container.innerHTML = '';
     actualizarLineas();
