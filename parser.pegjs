@@ -45,13 +45,14 @@
 }
 
 start
- = comment* _ section
+ = comment* _ section 
  
 section 
- =".global _start"i _ data:data? _ text? "_start:"i instructions
- /".global _start"i _  ".section "i? "_start:"i instructions d:data? bss?
+ =".global _start"i _ data:data? _ text? "_start:"i instructions salida
+ /".global _start"i _  ".section "i? "_start:"i instructions salida
  
-
+salida 
+	= _ (data:data? _ bss:bss?)?
 data 
  = ".section "i? ".data"i _ dec:Declarations*
  
@@ -59,7 +60,7 @@ text
  = ".section "i? ".text"i _ ident:ID ":" _ ins:instructions 
 
 bss
- = ".section "i?  ".bss"i
+ = ".section "i?  ".bss"i _ dec:Declarations*
 	
 
 // puede aceptar varias cadenas
@@ -67,7 +68,9 @@ instructions "instructions"
  = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
 
 instruction "instruction"
-  = asignate
+  = ID ":"
+  / asignate 
+  / "b "i ID
   / operation
   / logic
   / move
@@ -76,30 +79,27 @@ instruction "instruction"
   / comment {/*return null;*/}
 
 logic
- = "AND"i dest:register "," _ src1:register"," _ src2:register
- / "ORR"i dest:register "," _ src1:register"," _ src2:register
- / "EOR"i dest:register "," _ src1:register"," _ src2:register
- / "MVN"i dest:register "," _ src1:register
- / "CMP"i dest:register "," _ src1:register
+ = "AND "i arrayRegister
+ / "ORR "i arrayRegister
+ / "EOR "i arrayRegister
+ / "MVN "i dest:register "," _ src1:register
+ / "CMP "i dest:register "," _ src1:register
+ 
+ arrayRegister "arrayRegister"
+  = dest:register "," _ src1:register"," _ src2:register
  
  move "move"
  = "LSL"i
  / "LSR"i
+ 
 operation "operation"
-  = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
-  / "SUB "i dest:register "," _ src1:register "," _ src2:operand
-  / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
-  / "DIV "i dest:register "," _ src1:register "," _ src2:operand
-<<<<<<<<< Temporary merge branch 1
-  / "FMOV"i dest:register "," _ op:float_operand {return new node(fmov,left,right)}
-  / "FADD"i dest:register "," _ src1:register "," src2:float_operand
-  / "FSUB"i dest:register "," _ src1:register "," src2:float_operand
-  / "FDIV"i dest:register "," _ src1:register "," src2:float_operand
-  / "B."i cond:condition _ lbl:label
-  / comment {return null;}
+  = "ADD "i arrayOperation
+  / "SUB "i arrayOperation 
+  / "MUL "i arrayOperation
+  / "DIV "i arrayOperation
   
-operand 
-=========
+arrayOperation "arrayOperation"
+ = est:register "," _ src1:register "," _ src2:operand 
 
 asignate "asignate"
  = "FMOV "i dest:register "," _ op:float_operand
@@ -147,9 +147,9 @@ string "string"
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* 
-
+  = "//" [^\n]* {}
+  / ";" [^\n]*  {}
+  / "/*" (!"*/" .)* "*/" {}
 // espacios, saltos de linea y tab
 _ "whitespace"
   = [ \t\n\r]* {return null;} 
->>>>>>>>> Temporary merge branch 2
