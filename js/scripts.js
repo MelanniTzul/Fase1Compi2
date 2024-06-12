@@ -55,7 +55,8 @@ function loadTree() {
     try {
         var DOTstring = PEG.parse(x);
         console.log('esto trae', DOTstring);
-        lo.textContent = DOTstring; // Mostrar el mensaje de error en el div
+        // lo.textContent = DOTstring; // Mostrar el mensaje de error en el div
+        lo.textContent = "Cadena valida";
         var parsedData = vis.parseDOTNetwork(DOTstring);
         var data = {
             nodes: parsedData.nodes,
