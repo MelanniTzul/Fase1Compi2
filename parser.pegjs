@@ -74,6 +74,9 @@ instruction "instruction"
   = ID ":" 
   / asignate 
   / "ldr "i register "," _"=" label
+  / "strb "i register "," _ "["register"]"
+  / "cmp "i register "," _ immediate
+  / "bne "i _ ID 
   / "b "i ID
   / operation
   / logic
@@ -81,6 +84,7 @@ instruction "instruction"
   / "B."i cond:condition _ lbl:label
   / "SVC "i left:immediate
   / comment {/*return null;*/}
+
 
 logic
  = "AND "i arrayRegister
