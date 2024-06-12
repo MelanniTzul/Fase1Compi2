@@ -74,8 +74,8 @@ logic
  / "CMP "i dest:register "," _ src1:register
  
  move "move"
- = "LSL"i
- / "LSR"i
+ = "LSL "i
+ / "LSR "i
 operation "operation"
   = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
@@ -114,8 +114,9 @@ label "label"
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* 
-
+  = "//" [^\n]*  
+  / ";" [^\n]* 
+  /"/*" [^\n]* "*/"
 // espacios, saltos de linea y tab
 _ "whitespace"
   = [ \t\n\r]* {return null;} 
