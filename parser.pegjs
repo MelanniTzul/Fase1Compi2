@@ -45,11 +45,11 @@
 }
 
 start
- = section
+ = comment* _ section
  
 section 
- = comment* _ ".global _start"i _ data:data? _ text? ".section "i?"_start:"i instructions
- / ".section "i?"_start:"i instructions data? 
+ =".global _start"i _ data:data? _ text? "_start:"i instructions
+ /".global _start"i _  ".section "i? "_start:"i instructions d:data? bss?
  
 
 data 
@@ -57,6 +57,9 @@ data
  
 text 
  = ".section "i? ".text"i _ ident:ID ":" _ ins:instructions 
+
+bss
+ = ".section "i?  ".bss"i
 	
 
 // puede aceptar varias cadenas
@@ -64,7 +67,8 @@ instructions "instructions"
  = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
 
 instruction "instruction"
-  = asignate
+  = ID ":"
+  / asignate 
   / "b "i ID
   / operation
   / logic
@@ -113,6 +117,7 @@ Declarations
 // registro
 immediate "immediate"
   = "#"? "0b"binaryDigits:[01]+ {return parseInt(binaryDigits, 2);}
+  / "#"? string {}
   / "#"? num:integer {return Number(num);}
 
 condition 
@@ -124,23 +129,26 @@ integer "integer"
   
 // operacion del float
 float_operand "operation_float"
-  = "#"? entero:[0-9][0-9]*"."decimal:[0-9]+
+  = "#"? entero:[0-9][0-9]*"."[0-9]+ {console.log(entero); return parseInt(entero,10);}
   / register
 
 //reconoce id
 label "label"
   = [a-zA-Z_][a-zA-Z0-9_]*
 
-ID
+ID "ID"
   = id:([a-zA-Z_$][a-zA-Z0-9_$]*) _ { return id; }
 
 string "string"
   = "\"" chars:[^\"]* "\"" _ { return chars.join(""); }
+  / "\'" chars:[^\']* "\'" _ { return chars.join(""); }
+  
 
 // reconoce comentarios
 comment "coment"
   = "//" [^\n]* {}
   / ";" [^\n]*  {}
+  /"/*" [^\n]* "*/" {}
 
 // espacios, saltos de linea y tab
 _ "whitespace"
