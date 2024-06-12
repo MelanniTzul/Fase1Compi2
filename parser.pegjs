@@ -48,11 +48,13 @@ start
  = comment* _ section
  
 section 
- =".global _start"i _ data:data? _ text? sectionStart instructions
- /".global _start"i _  sectionStart d:data? _ bss? _
+ = ".global _start"i _  ".section "i? "_start:"i instructions salida
+ / ".global _start"i _ data:data? _ text? "_start:"i instructions
+
+
  
-sectionStart
- = ".section "i? "_start:"i instructions
+salida 
+	= _ (data:data? _ bss:bss?)?
 
 data 
  = ".section "i? ".data"i _ dec:Declarations*
@@ -61,7 +63,7 @@ text
  = ".section "i? ".text"i _ ident:ID ":" _ ins:instructions 
 
 bss
- = ".section "i?  ".bss"i
+ = ".section "i?  ".bss"i dec:Declarations*
 	
 
 // puede aceptar varias cadenas
@@ -71,6 +73,7 @@ instructions "instructions"
 instruction "instruction"
   = ID ":" 
   / asignate 
+  / "ldr "i register "," _"=" label
   / "b "i ID
   / operation
   / logic
@@ -136,10 +139,10 @@ float_operand "operation_float"
 
 //reconoce id
 label "label"
-  = [a-zA-Z_][a-zA-Z0-9_]*
+  = ([a-zA-Z_$][a-zA-Z0-9_$]*) _
 
 ID "ID"
-  = id:([a-zA-Z_$][a-zA-Z0-9_$]*) _ { return id; }
+  = id:label { return id; }
 
 string "string"
   = "\"" chars:[^\"]* "\"" _ { return chars.join(""); }
