@@ -48,9 +48,11 @@ start
  = comment* _ section
  
 section 
- =".global _start"i _ data:data? _ text? "_start:"i instructions
- /".global _start"i _  ".section "i? "_start:"i instructions d:data? bss?
+ =".global _start"i _ data:data? _ text? sectionStart instructions
+ /".global _start"i _  sectionStart d:data? _ bss? _
  
+sectionStart
+ = ".section "i? "_start:"i instructions
 
 data 
  = ".section "i? ".data"i _ dec:Declarations*
@@ -67,7 +69,7 @@ instructions "instructions"
  = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
 
 instruction "instruction"
-  = ID ":"
+  = ID ":" 
   / asignate 
   / "b "i ID
   / operation
@@ -148,7 +150,7 @@ string "string"
 comment "coment"
   = "//" [^\n]* {}
   / ";" [^\n]*  {}
-  /"/*" [^\n]* "*/" {}
+  / "/*" (!"*/" .)* "*/" {}
 
 // espacios, saltos de linea y tab
 _ "whitespace"
