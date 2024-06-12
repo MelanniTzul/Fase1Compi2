@@ -68,7 +68,7 @@ bss
 
 // puede aceptar varias cadenas
 instructions "instructions"
- = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
+ = _ left:instruction _ right:instructions? {/return new node("instruction",left,right);/}
 
 instruction "instruction"
   = ID ":" 
@@ -78,12 +78,14 @@ instruction "instruction"
   / "cmp "i register "," _ immediate
   / "bne "i _ ID 
   / "b "i ID
+  / "beq "i ID
+  / "bl "i ID
   / operation
   / logic
   / move
   / "B."i cond:condition _ lbl:label
   / "SVC "i left:immediate
-  / comment {/*return null;*/}
+  / comment {/return null;/}
 
 
 logic
@@ -105,6 +107,7 @@ operation "operation"
   / "SUB "i arrayOperation 
   / "MUL "i arrayOperation
   / "DIV "i arrayOperation
+  / "SUB "i arrayOperation
   
 arrayOperation "arrayOperation"
  = est:register "," _ src1:register "," _ src2:operand 
@@ -157,8 +160,8 @@ string "string"
 comment "coment"
   = "//" [^\n]* {}
   / ";" [^\n]*  {}
-  / "/*" (!"*/" .)* "*/" {}
+  / "/" (!"/" .)* "*/" {}
 
 // espacios, saltos de linea y tab
 _ "whitespace"
-  = [ \t\n\r]* {return null;} 
+  = [ \t\n\r]* {return null;}
