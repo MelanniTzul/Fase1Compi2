@@ -43,6 +43,7 @@
   }
   
 }
+
 start
  = instructions// ".global_start"i _ comment* section {/*return generateDot(ini);*/} */
  
@@ -57,6 +58,7 @@ instructions "instructions"
 
 instruction "instruction"
   = asignate
+  / "b "i label
   / operation
   / logic
   / move
@@ -69,23 +71,11 @@ logic
  / "ORR "i dest:register "," _ src1:register"," _ src2:register
  / "EOR "i dest:register "," _ src1:register"," _ src2:register
  / "MVN "i dest:register "," _ src1:register
- / "CMP "i dest:operand "," _ src1:operand _ comment? _ b // continuaciones de cmp
+ / "CMP "i dest:register "," _ src1:register
  
- b // solo como pivote para que se vea bonito xD
-  = relacionales  _ b
-  /relacionales 
-  
-// Condicionales para cmp
- relacionales
-  ="b.eq "i label comment?//Igualdad
-  /"b.ne "i label comment?//desigualdad
-  /"b.lt "i label comment?//menor que
-  /"b.gt "i label comment?// mayor que
-
  move "move"
- = "LSL "i dest:register "," _ src1:register"," _ src2:immediate
- / "LSR "i dest:register "," _ src1:register"," _ src2:immediate
-
+ = "LSL "i
+ / "LSR "i
 operation "operation"
   = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
   / "SUB "i dest:register "," _ src1:register "," _ src2:operand
@@ -124,8 +114,9 @@ label "label"
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* 
-
+  = "//" [^\n]*  
+  / ";" [^\n]* 
+  /"/*" [^\n]* "*/"
 // espacios, saltos de linea y tab
 _ "whitespace"
   = [ \t\n\r]* {return null;} 
