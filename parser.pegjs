@@ -1,56 +1,17 @@
-// Grammar Arquitecture ARM 64
-// ==========================
-
-  // Función de ayuda para convertir los valores de los registros
-{
-  function toInteger(value) {
-    return Number(value);
-  }
-  class node{
-    constructor( value, left=null, right=null) {
-    	this.value = value;
-        this.right = right;
-    	this.left = left;
-    }
-  }
-  function generateDot(root) {
-    let dot = "graph G {\n";
-    let counter = { count: 0 };
-
-    function traverse(node) {
-      let current = counter.count++;
-      
-      if ( typeof node.value === 'object') {
-      	let left = traverse(node.value);
-   		  dot += `  ${current} -- ${left};\n`;
-      } else {
-        dot += `  ${current} [label="${node.value}"];\n`;
-      }
-
-      if (node.left) {
-        let left = traverse(node.left);
-        dot += `  ${current} -- ${left};\n`;
-      }
-      if (node.right) {
-        let right = traverse(node.right);
-        dot += `  ${current} -- ${right};\n`;
-      }
-      return current;
-    }
-    traverse(root);
-    dot += "}\n";
-    return dot;
-  }
-  
-}
-
 start
- = instructions// ".global_start"i _ comment* section {/*return generateDot(ini);*/} */
+ = section
  
 section 
- = _".start" instructions
+ = comment* _ ".global _start"i _ data? _ text? ".section"i? _ "_start:"i instructions
+ / ".section"i? _ "_start:"i instructions data? 
+ 
 
-
+data 
+ = ".section"i? _ ".data"i _
+ 
+text 
+ = ".section"i? _ ".text"i _
+	
 
 // puede aceptar varias cadenas
 instructions "instructions"
@@ -67,24 +28,32 @@ instruction "instruction"
   / comment {/*return null;*/}
 
 logic
- = "AND "i dest:register "," _ src1:register"," _ src2:register
- / "ORR "i dest:register "," _ src1:register"," _ src2:register
- / "EOR "i dest:register "," _ src1:register"," _ src2:register
+ = "AND "i arrayRegister
+ / "ORR "i arrayRegister
+ / "EOR "i arrayRegister
  / "MVN "i dest:register "," _ src1:register
  / "CMP "i dest:register "," _ src1:register
+ 
+ arrayRegister "arrayRegister"
+  = dest:register "," _ src1:register"," _ src2:register
  
  move "move"
  = "LSL"i
  / "LSR"i
+ 
 operation "operation"
-  = "ADD "i dest:register "," _ src1:register "," _ src2:operand 
-  / "SUB "i dest:register "," _ src1:register "," _ src2:operand
-  / "MUL "i  dest:register "," _ src1:register "," _ src2:operand
-  / "DIV "i dest:register "," _ src1:register "," _ src2:operand
+  = "ADD "i arrayOperation
+  / "SUB "i arrayOperation 
+  / "MUL "i arrayOperation
+  / "DIV "i arrayOperation
+  
+arrayOperation "arrayOperation"
+ = est:register "," _ src1:register "," _ src2:operand 
 
 asignate "asignate"
  = "FMOV "i dest:register "," _ op:float_operand
  / "MOV "i  left:register "," _ right:immediate
+ 
 operand "operand"
   = value:immediate {return value;} 
   / value:register {return value;}
@@ -106,7 +75,7 @@ integer "integer"
   
 // operacion del float
 float_operand "operation_float"
-  = "#"? entero:[0-9]*"."decimal:[0-9]+
+  = "#"? entero:[0-9][0-9]*"."decimal:[0-9]+
   / register
 
 label "label"
@@ -114,7 +83,8 @@ label "label"
 
 // reconoce comentarios
 comment "coment"
-  = "//" [^\n]*  / ";" [^\n]* 
+  = "//" [^\n]*  
+  / ";" [^\n]* 
 
 // espacios, saltos de linea y tab
 _ "whitespace"
