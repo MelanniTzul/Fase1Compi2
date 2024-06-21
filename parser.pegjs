@@ -1,155 +1,392 @@
-// Grammar Arquitecture ARM 64
-// ==========================
-
- // Función de ayuda para convertir los valores de los registros
-{
-  function toInteger(value) {
-    return Number(value);
-  }
-  class node{
-    constructor( value, left=null, right=null) {
-    	this.value = value;
-        this.right = right;
-    	this.left = left;
-    }
-  }
-  function generateDot(root) {
-    let dot = "graph G {\n";
-    let counter = { count: 0 };
-
-    function traverse(node) {
-      let current = counter.count++;
-      
-      if ( typeof node.value === 'object') {
-      	let left = traverse(node.value);
-   		  dot += `  ${current} -- ${left};\n`;
-      } else {
-        dot += `  ${current} [label="${node.value}"];\n`;
-      }
-
-      if (node.left) {
-        let left = traverse(node.left);
-        dot += `  ${current} -- ${left};\n`;
-      }
-      if (node.right) {
-        let right = traverse(node.right);
-        dot += `  ${current} -- ${right};\n`;
-      }
-      return current;
-    }
-    traverse(root);
-    dot += "}\n";
-    return dot;
-  }
-  
-}
-
+// Iniciamos el análisis sintáctico con la regla inicial "start"
 start
- = comment* _ section
- 
-section 
- =".global _start"i _ data:data? _ text? "_start:"i instructions
- /".global _start"i _  ".section "i? "_start:"i instructions d:data? bss?
- 
+    = line:(directive / section / instruction / comment / mcomment / blank_line)*
 
-data 
- = ".section "i? ".data"i _ dec:Declarations*
- 
-text 
- = ".section "i? ".text"i _ ident:ID ":" _ ins:instructions 
+// Directivas en ARM64 v8
+directive
+  = _* name:directive_p _* args:(directive_p / label / string / expression)? _* comment? "\n"?
 
-bss
- = ".section "i?  ".bss"i
-	
+//
+directive_p
+    = "." directive_name
 
-// puede aceptar varias cadenas
-instructions "instructions"
- = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
+// Nombre de las directivas
+directive_name
+  = "align" / "ascii" / "asciz" / "byte" / "hword" / "word" / "quad" /
+    "data" / "text" / "global" / "section" / "space" / "zero" / "incbin" / "set" / "equ" / "bss"
 
-instruction "instruction"
-  = ID ":"
-  / asignate 
-  / "b "i ID
-  / operation
-  / logic
-  / move
-  / "B."i cond:condition _ lbl:label
-  / "SVC "i left:immediate
-  / comment {/*return null;*/}
+// Secciones
+section
+  = _* label:label _* ":" _* comment? "\n"?
 
-logic
- = "AND "i arrayRegister
- / "ORR "i arrayRegister
- / "EOR "i arrayRegister
- / "MVN "i dest:register "," _ src1:register
- / "CMP "i dest:register "," _ src1:register
+// Instrucciones en ARM64 v8 
+instruction
+    = i:add_inst
+    / i:sub_inst
+    / i:mul_inst
+    / i:div_inst
+    / i:udiv_inst
+    / i:uxtb_inst
+    / i:sdiv_inst
+    / i:ands_inst
+    / i:and_inst
+    / i:orr_inst
+    / i:eor_inst
+    / i:mov_inst
+    / i:mvn_inst
+    / i:ldr_inst
+    / i:ldrb_inst
+    / i:ldp_inst
+    / i:strb_inst
+    / i:str_inst
+    / i:stp_inst
+    / i:lsl_inst
+    / i:lsr_inst
+    / i:asr_inst
+    / i:ror_inst
+    / i:cmp_inst
+    / i:csel_inst
+    / i:cset_inst
+    / i:beq_inst
+    / i:bne_inst
+    / i:bgt_inst
+    / i:blt_inst
+    / i:ble_inst
+    / i:bl_inst
+    / i:b_inst
+    / i:ret_inst
+    / i:svc_inst
+
+// Instrucciones Suma 64 bits y 32 bits (ADD)
+add_inst "Instrucción de Suma"
+    = _* "ADD"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "ADD"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instruccions ands
+ands_inst 'Instrucción de ands'
+  = _* 'ANDS'i _* rd:reg64_or_reg32 ', ' rd1:reg64_or_reg32 ', ' rd3:immediate _* comment? "\n"?
+
+// Instrucciones de Resta 64 bits y 32 bits (SUB)  
+sub_inst
+    = _* "SUB"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "SUB"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones de Multiplicación 64 bits y 32 bits (MUL)
+mul_inst
+    = _* "MUL"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "MUL"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones de División 64 bits y 32 bits (DIV)
+div_inst
+    = _* "DIV"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "DIV"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones de División sin signo 64 bits y 32 bits (UDIV)
+udiv_inst
+    = _* "UDIV"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "UDIV"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones de División con signo 64 bits y 32 bits (SDIV)
+sdiv_inst
+    = _* "SDIV"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "SDIV"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones AND 64 bits y 32 bits (AND)        
+and_inst
+    = _* "AND"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "AND"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones OR 64 bits y 32 bits (ORR)
+orr_inst
+    = _* "ORR"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "ORR"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucciones XOR 64 bits y 32 bits (EOR)
+eor_inst
+    = _* "EOR"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "EOR"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción MOV 64 bits y 32 bits (MOV)
+mov_inst "Instrucción MOV"
+  = _* "MOV"i _* rd:reg64_or_reg32 _* "," _* src:mov_source _* comment? "\n"?
+
+
+reg64_or_reg32 "Registro de 64 o 32 Bits"
+  = reg64
+  / reg32
+
+mov_source "Source para MOV"
+  = reg64_or_reg32
+  / immediate
+
+//  Instucción Load Register (LDR)
+ldr_inst "Instrucción LDR"
+    = _* "LDR"i _* rd:reg64 _* "," _* src:ldr_source _* comment? "\n"?
+
+    / _* "LDR"i _* rd:reg32 _* "," _* src:ldr_source _* comment? "\n"?
+
+ldr_source 
+    = "=" l:label
+
+    / "[" _* r:reg64_or_reg32 _* "," _* r2:reg64_or_reg32 _* "," _* s:shift_op _* i2:immediate _* "]"
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "," _* s:shift_op _* i2:immediate _* "]"
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "," _* e:extend_op _* "]" 
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "]"
  
- arrayRegister "arrayRegister"
-  = dest:register "," _ src1:register"," _ src2:register
- 
- move "move"
- = "LSL"i
- / "LSR"i
- 
-operation "operation"
-  = "ADD "i arrayOperation
-  / "SUB "i arrayOperation 
-  / "MUL "i arrayOperation
-  / "DIV "i arrayOperation
+    / "[" _* r:reg64 _* "]"
+
+
+// Instrucción Load Register (LDRB)
+ldrb_inst "Instrucción LDRB"
+    = _* "LDRB"i _* rd:reg64 _* "," _* src:ldr_source _* comment? "\n"?
+
+    / _* "LDRB"i _* rd:reg32 _* "," _* src:ldr_source _* comment? "\n"?
+
+
+// Instrucción Load Pair Register (LDP)
+ldp_inst "Instrucción LDP"
+    = _* "LDP"i _* rd:reg64 _* "," _* rd2:reg64 _* "," _* src:ldr_source _* comment? "\n"?
+
+    / _* "LDP"i _* rd:reg32 _* "," _* rd2:reg32 _* "," _* src:ldr_source _* comment? "\n"?
+
+
+// Instrucción Store Register (STR)
+str_inst "Instrucción STR"
+    = _* "STR"i _* rd:reg64 _* "," _* src:str_source _* comment? "\n"?
+
+    / _* "STR"i _* rd:reg32 _* "," _* src:str_source _* comment? "\n"?
+
+str_source 
+    = "[" _* r:reg64_or_reg32 _* "," _* r2:reg64_or_reg32 _* "," _* s:shift_op _* i2:immediate _* "]"
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "," _* s:shift_op _* i2:immediate _* "]"
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "," _* e:extend_op _* "]" 
+
+    / "[" _* r:reg64 _* "," _* i:immediate _* "]"
+        {
+            return [r, i];
+        }
+    / "[" _* r:reg64 _* "]"
+        {
+            return [r];
+        }
+
+// Instrucción Store Register Byte (STRB)
+strb_inst "Instrucción STRB"
+    = _* "STRB"i _* rd:reg64 _* "," _* src:str_source _* comment? "\n"?
+
+    / _* "STRB"i _* rd:reg32 _* "," _* src:str_source _* comment? "\n"?
+
+// Instrucción Store Pair Register (STP)
+stp_inst "Instrucción STP"
+    = _* "STP"i _* rd:reg64 _* "," _* rd2:reg64 _* "," _* src:str_source _* comment? "\n"?
+
+    / _* "STP"i _* rd:reg32 _* "," _* rd2:reg32 _* "," _* src:str_source _* comment? "\n"?
+
+// Instrucción Move Not (MVN)
+mvn_inst "Instrucción MVN"
+    = _* "MVN"i _* rd:reg64 _* "," _* src:mov_source _* comment? "\n"?
+
+    / _* "MVN"i _* rd:reg32 _* "," _* src:mov_source _* comment? "\n"?
+
+// Instrucción Logial Shift Left (LSL)
+lsl_inst "Instrucción LSL"
+    = _* "LSL"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "LSL"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción Logial Shift Right (LSR)
+lsr_inst "Instrucción LSR"
+    = _* "LSR"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "LSR"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción Arithmetical Shift Right (ASR)
+asr_inst "Instrucción ASR"
+    = _* "ASR"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "ASR"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción Rotate Right (ROR)
+ror_inst "Instrucción ROR"
+    = _* "ROR"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "ROR"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción Compare (CMP)
+cmp_inst "Instrucción CMP"
+    = _* "CMP"i _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
+
+    / _* "CMP"i _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instrucción registro  (CSEL)
+csel_inst 'Instruccion CSEL'
+  = _* 'csel'i _* rn0:reg64_or_reg32 ', '  _* rn1:reg64_or_reg32 ', '  _* rn3:reg64_or_reg32 ', '  cond _* comment? "\n"?
+
+// Instucción de select (CST)
+cset_inst 
+  = _* 'cset' _* rn0:reg32 ', ' cond _* comment? "\n"?
+
+// Instrucción Branch (B)
+b_inst "Instrucción B"
+    = _* "B"i _* l:label _* comment? "\n"?
+
+// Instrucción Branch with Link (BL)
+bl_inst "Instrucción BL"
+    = _* "BL"i _* l:label _* comment? "\n"?
+
+ble_inst
+  = _* 'BLE'i _* label _* comment? "\n"?
+
+// Instrucción Retornar de Subrutina (RET)
+ret_inst "Instrucción RET"
+    = _* "RET"i _* comment? "\n"?
+
+// Instrucción Salto Condicional (BEQ)
+beq_inst "Instrucción BEQ"
+    = _* "BEQ"i _* l:label _* comment? "\n"?
+
+// Instrucción Salto Condicional (BNE)
+bne_inst "Instrucción BNE"
+    = _* "BNE"i _* l:label _* comment? "\n"?
+
+// Instrucción Salto Condicional (BGT)
+bgt_inst "Instrucción BGT"
+    = _* "BGT"i _* l:label _* comment? "\n"?
+
+// Instrucción Salto Condicional (BLT)
+blt_inst "Instrucción BLT"
+    = _* "BLT"i _* l:label _* comment? "\n"?
+
+// Instrucción Supervisor Call (SVC)
+svc_inst "Instrucción SVC"
+    = _* "SVC"i _* i:immediate _* comment? "\n"?
+
+// Instruccion de (UTXB)
+uxtb_inst 'instruccion uxtb' 
+    = _* 'UXTB'i _* i64:reg64 ',' _* i32:reg32  _* comment? "\n"?
+
+
+// Registros de propósito general 64 bits (limitado a los registros válidos de ARM64)
+reg64 "Registro_64_Bits"
+    = "x"i ("30" / [12][0-9] / [0-9])
+
+    / "SP"i // Stack Pointer
+        
+    / "LR"i  // Link Register
+
+    / "ZR"i  // Zero Register
+
+// Registros de propósito general 32 bits (limitado a los registros válidos de ARM64)
+reg32 "Registro_32_Bits"
+    = "w"i ("30" / [12][0-9] / [0-9])
+
+// Operando puede ser un registro o un número inmediato
+operand64 "Operandor 64 Bits"
+    = r:reg64 _* "," _* ep:extend_op                 // Registro con extensión de tamaño
+
+    / r:reg64 lp:(_* "," _* shift_op _* immediate)?  // Registro con desplazamiento lógico opcional
   
-arrayOperation "arrayOperation"
- = est:register "," _ src1:register "," _ src2:operand 
+    / i:immediate                                     // Valor inmediato                          
 
-asignate "asignate"
- = "FMOV "i dest:register "," _ op:float_operand
- / "MOV "i  left:register "," _ right:immediate
+// Operando puede ser un registro o un número inmediato
+operand32 "Operandor 32 Bits"
+    = r:reg32 lp:(_* "," _* shift_op _* immediate)?  // Registro con desplazamiento lógico
+
+    / i:immediate                             // Valor inmediato
+
+
+// Definición de desplazamientos
+shift_op "Operador de Desplazamiento"
+    = "LSL"i
+
+    / "LSR"i
+
+    / "ASR"i
+
+// Definición de extensiones
+extend_op "Operador de Extensión"
+    = "UXTB"i
+
+    / "UXTH"i 
+
+    / "UXTW"i 
+
+    / "UXTX"i
  
-operand "operand"
-  = value:immediate {return value;} 
-  / value:register {return value;}
+    / "SXTB"i
 
-register "register x"
-  = ["x"i/"w"i] num:integer { return (num >=0 && num<32)? new node("register",num): undefined;}
+    / "SXTH"i
 
-Declarations
-  = id:ID ":" _ "." _ ID _ (integer / string)
+    / "SXTW"i 
 
-// registro
-immediate "immediate"
-  = "#"? "0b"binaryDigits:[01]+ {return parseInt(binaryDigits, 2);}
-  / "#"? string {}
-  / "#"? num:integer {return Number(num);}
+    / "SXTX"i
+// condicional 
+cond 'condicional_csel'
+  = 'eq'i / 'ne'i / 'gt'i / 'ge'i / 'lt'i / 'le'i / 'hi'i / 'ls'i 
 
-condition 
-  = "EQ" / "NE" / "GT" / "LT" / "GE" / "LE"
+// Definición de valores inmediatos
+immediate "Inmediato"
+    =  "#"? "0b" binary_literal
 
-// reconoce entero
-integer "integer"
-  = num:[0-9]+ {return Number(num.join("")); }
-  
-// operacion del float
-float_operand "operation_float"
-  = "#"? entero:[0-9][0-9]*"."[0-9]+ {console.log(entero); return parseInt(entero,10);}
-  / register
+    / "#"? "0x" hex_literal
 
-//reconoce id
-label "label"
-  = [a-zA-Z_][a-zA-Z0-9_]*
+    / "#"? integer
 
-ID "ID"
-  = id:([a-zA-Z_$][a-zA-Z0-9_$]*) _ { return id; }
+    / "#"? "'"letter"'"
 
-string "string"
-  = "\"" chars:[^\"]* "\"" _ { return chars.join(""); }
-  / "\'" chars:[^\']* "\'" _ { return chars.join(""); }
-  
+binary_literal
+  = [01]+ // Representa uno o más dígitos binarios
+hex_literal
+    = [0-9a-fA-F]+ // Representa uno o más dígitos hexadecimales
+letter
+    = [a-zA-Z] 
+// Expresiones
+expression "Espresión"
+    = label
+    / integer
 
-// reconoce comentarios
-comment "coment"
-  = "//" [^\n]* {}
-  / ";" [^\n]*  {}
-  /"/*" [^\n]* "*/" {}
+// Etiqueta
+label "Etiqueta"
+    = [a-zA-Z_][a-zA-Z0-9_]*
 
-// espacios, saltos de linea y tab
-_ "whitespace"
-  = [ \t\n\r]* {return null;} 
+// Número entero
+integer "Numero Entero"
+    = '-'? [0-9]+
+
+// Cadena ASCII
+string "Cadena de Texto"
+    = '"' ([^"]*) '"'
+
+// Línea en blanco
+blank_line "Linea En Blanco"
+    = _* comment? "\n"
+
+
+// Comentarios
+comment "Comentario"
+    = ("//" [^\n]*) 
+
+  / (";" [^\n]*)
+
+
+mcomment "Comentario Multilinea"
+    = "/*" ([^*] / [*]+ [^*/])* "*/"
+
+// Espacios en blanco
+_ "Ignorado"
+    = [ \t]+
+
