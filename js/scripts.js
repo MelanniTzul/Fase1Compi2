@@ -57,6 +57,12 @@ function loadTree() {
         console.log('esto trae', DOTstring);
         // lo.textContent = DOTstring; // Mostrar el mensaje de error en el div
         lo.textContent = "Cadena valida";
+        console.log('Cuádruplos generados:');
+        
+        let salida = DOTstring.getC()
+        forEach(salida => {
+            console.log(salida);
+        });
         var parsedData = vis.parseDOTNetwork(DOTstring);
         var data = {
             nodes: parsedData.nodes,
@@ -65,7 +71,7 @@ function loadTree() {
         var options = {
             nodes: {
                 widthConstraint: 20
-            },        
+            },
             layout: {
                 hierarchical: {
                     levelSeparation: 60,
@@ -77,8 +83,8 @@ function loadTree() {
                 }
             },
             nodes: {
-                 while: 85,
-                }, 
+                while: 85,
+            },
         };
         var network = new vis.Network(networkDiv, data, options);
     } catch (err) {
@@ -91,45 +97,45 @@ function highlightError(input, location) {
     const lines = input.split('\n');
     const { start, end } = location;
     const errorLine = lines[start.line - 1];
-  
+
     // Crear un marcador para resaltar el error
     const marker = ' '.repeat(start.column - 1) + '^'.repeat(Math.max(1, end.column - start.column));
-  
+
     return `${errorLine}\n${marker}`;
-  }
-  
-  // Función para traducir los mensajes de error
-  function translateErrorMessage(message) {
+}
+
+// Función para traducir los mensajes de error
+function translateErrorMessage(message) {
     if (message.includes("Expected end of input")) {
-      return "Se esperaba el fin de la entrada";
+        return "Se esperaba el fin de la entrada";
     } else if (message.includes("Expected")) {
-      const expected = message.match(/Expected (.+) but/)[1].replace(/"/g, '');
-      const found = message.match(/but "(.+)" found/)[1];
-      return `Se esperaba ${expected} pero se encontró "${found}"`;
+        const expected = message.match(/Expected (.+) but/)[1].replace(/"/g, '');
+        const found = message.match(/but "(.+)" found/)[1];
+        return `Se esperaba ${expected} pero se encontró "${found}"`;
     }
     return message;
-  }
-  
-  // Función para formatear el mensaje de error
-  function formatError(error, input) {
+}
+
+// Función para formatear el mensaje de error
+function formatError(error, input) {
     const { message, location } = error;
     const { start } = location;
-  
+
     const translatedMessage = translateErrorMessage(message);
     const highlightedError = highlightError(input, location);
     return `Error: ${translatedMessage}\nEn la línea ${start.line}, columna ${start.column}:\n${highlightedError}`;
-  }
-  
-  
+}
+
+
 function CargarArchivo() {
-    
+
     const fileInput = document.getElementById('fileInput');
     const textarea = document.getElementById('x');
     const file = fileInput.files[0];
     if (file) {
         const reader = new FileReader();
 
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             textarea.value = e.target.result;
             actualizarLineas();
         };
@@ -144,7 +150,7 @@ function clean() {
     log.innerHTML = '';
     lo.innerHTML = '';
     const container = document.getElementById('mynetwork');
-            container.innerHTML = '';
+    container.innerHTML = '';
     actualizarLineas();
 }
 
@@ -180,5 +186,5 @@ function guardarArchivo() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
 }
