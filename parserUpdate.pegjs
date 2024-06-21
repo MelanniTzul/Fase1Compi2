@@ -1,3 +1,4 @@
+
 // Iniciamos el análisis sintáctico con la regla inicial "start"
 start
     = line:(directive / section / instruction / comment / mcomment / blank_line)*
