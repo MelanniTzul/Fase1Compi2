@@ -48,9 +48,13 @@ start
  = comment* _ section
  
 section 
- =".global _start"i _ data:data? _ text? "_start:"i instructions
- /".global _start"i _  ".section "i? "_start:"i instructions d:data? bss?
+ = ".global _start"i _  ".section "i? "_start:"i instructions salida
+ / ".global _start"i _ data:data? _ text? "_start:"i instructions
+
+
  
+salida 
+	= _ (data:data? _ bss:bss?)?
 
 data 
  = ".section "i? ".data"i _ dec:Declarations*
@@ -59,23 +63,30 @@ text
  = ".section "i? ".text"i _ ident:ID ":" _ ins:instructions 
 
 bss
- = ".section "i?  ".bss"i
+ = ".section "i?  ".bss"i dec:Declarations*
 	
 
 // puede aceptar varias cadenas
 instructions "instructions"
- = _ left:instruction _ right:instructions? {/*return new node("instruction",left,right);*/}
+ = _ left:instruction _ right:instructions? {/return new node("instruction",left,right);/}
 
 instruction "instruction"
-  = ID ":"
+  = ID ":" 
   / asignate 
+  / "ldr "i register "," _"=" label
+  / "strb "i register "," _ "["register"]"
+  / "cmp "i register "," _ immediate
+  / "bne "i _ ID 
   / "b "i ID
+  / "beq "i ID
+  / "bl "i ID
   / operation
   / logic
   / move
   / "B."i cond:condition _ lbl:label
   / "SVC "i left:immediate
-  / comment {/*return null;*/}
+  / comment {/return null;/}
+
 
 logic
  = "AND "i arrayRegister
@@ -96,6 +107,7 @@ operation "operation"
   / "SUB "i arrayOperation 
   / "MUL "i arrayOperation
   / "DIV "i arrayOperation
+  / "SUB "i arrayOperation
   
 arrayOperation "arrayOperation"
  = est:register "," _ src1:register "," _ src2:operand 
@@ -134,10 +146,10 @@ float_operand "operation_float"
 
 //reconoce id
 label "label"
-  = [a-zA-Z_][a-zA-Z0-9_]*
+  = ([a-zA-Z_$][a-zA-Z0-9_$]*) _
 
 ID "ID"
-  = id:([a-zA-Z_$][a-zA-Z0-9_$]*) _ { return id; }
+  = id:label { return id; }
 
 string "string"
   = "\"" chars:[^\"]* "\"" _ { return chars.join(""); }
@@ -148,8 +160,8 @@ string "string"
 comment "coment"
   = "//" [^\n]* {}
   / ";" [^\n]*  {}
-  /"/*" [^\n]* "*/" {}
+  / "/" (!"/" .)* "*/" {}
 
 // espacios, saltos de linea y tab
 _ "whitespace"
-  = [ \t\n\r]* {return null;} 
+  = [ \t\n\r]* {return null;}
