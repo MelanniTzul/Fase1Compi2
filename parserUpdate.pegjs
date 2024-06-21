@@ -53,6 +53,7 @@ instruction
     / i:b_inst
     / i:ret_inst
     / i:svc_inst
+
 // Instrucciones Suma 64 bits y 32 bits (ADD)
 add_inst "Instrucción de Suma"
     = _* "ADD"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
@@ -343,10 +344,14 @@ label "Etiqueta"
 // Número entero
 integer "Numero Entero"
     = '-'? [0-9]+
+    {
+        return parseInt(text(), 10); 
+    }
 
 // Cadena ASCII
 string "Cadena de Texto"
-    = '"' ([^"]*) '"'
+    = '"' c:([^"]*) '"'
+    
 
 // Línea en blanco
 blank_line "Linea En Blanco"

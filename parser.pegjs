@@ -56,7 +56,7 @@ instruction
     / i:b_inst
     / i:ret_inst
     / i:svc_inst
-
+    
 // Instrucciones Suma 64 bits y 32 bits (ADD)
 add_inst "Instrucción de Suma"
     = _* "ADD"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
@@ -277,8 +277,7 @@ svc_inst "Instrucción SVC"
 
 // Instruccion de (UTXB)
 uxtb_inst 'instruccion uxtb' 
-    = _* 'UXTB'i _* i64:reg64 ',' _* i32:reg32  _* comment? "\n"?
-
+    = _* 'UXTB'i _* i64:reg64 ',' _* i32:reg32
 
 // Registros de propósito general 64 bits (limitado a los registros válidos de ARM64)
 reg64 "Registro_64_Bits"
@@ -340,52 +339,56 @@ cond 'condicional_csel'
 
 // Definición de valores inmediatos
 immediate "Inmediato"
-    =  "#"? "0b" binary_literal
+    =  "#"? "0b" int:binary_literal {return int;}
 
     / "#"? "0x" hex_literal
 
-    / "#"? integer
+    / "#"? int:integer {return int; }
 
-    / "#"? "'"letter"'"
+    / "#"? "'" le:letter "'" {return le;}
 
-binary_literal
-  = [01]+ // Representa uno o más dígitos binarios
+binary_literal 
+  = [01]+ {return parseInt(text(), 2);} // Representa uno o más dígitos binarios
 hex_literal
     = [0-9a-fA-F]+ // Representa uno o más dígitos hexadecimales
 letter
-    = [a-zA-Z] 
+    = [a-zA-Z] {return text();}
+
 // Expresiones
 expression "Espresión"
-    = label
-    / integer
+    = i:label {return i;}
+    / i:integer {return i;}
 
 // Etiqueta
 label "Etiqueta"
-    = [a-zA-Z_][a-zA-Z0-9_]*
+    = id:[a-zA-Z_][a-zA-Z0-9_]*
+    {
+      let completeId = id[0]+id[1]?.join('');
+      return completeId; 
+    }
 
 // Número entero
 integer "Numero Entero"
-    = '-'? [0-9]+
+    = '-'? [0-9]+  {return parseInt(text(), 10);}
 
 // Cadena ASCII
 string "Cadena de Texto"
-    = '"' ([^"]*) '"'
+    = '"' ([^"]*) '"' {return text();}
 
 // Línea en blanco
 blank_line "Linea En Blanco"
-    = _* comment? "\n"
+    = _* comment? "\n"{}
 
 
 // Comentarios
 comment "Comentario"
-    = ("//" [^\n]*) 
-
-  / (";" [^\n]*)
+    = ("//" [^\n]*) {}
+	/ (";" [^\n]*)  {}
 
 
 mcomment "Comentario Multilinea"
-    = "/*" ([^*] / [*]+ [^*/])* "*/"
+    = "/*" ([^*] / [*]+ [^*/])* "*/" {}
 
 // Espacios en blanco
 _ "Ignorado"
-    = [ \t]+
+    = [ \t]+ {}
