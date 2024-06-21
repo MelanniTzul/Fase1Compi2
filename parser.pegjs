@@ -28,6 +28,7 @@ instruction
     / i:udiv_inst
     / i:uxtb_inst
     / i:sdiv_inst
+    / i:ands_inst
     / i:and_inst
     / i:orr_inst
     / i:eor_inst
@@ -44,19 +45,27 @@ instruction
     / i:asr_inst
     / i:ror_inst
     / i:cmp_inst
+    / i:csel_inst
+    / i:cset_inst
     / i:beq_inst
     / i:bne_inst
     / i:bgt_inst
     / i:blt_inst
+    / i:ble_inst
     / i:bl_inst
     / i:b_inst
     / i:ret_inst
     / i:svc_inst
+
 // Instrucciones Suma 64 bits y 32 bits (ADD)
 add_inst "Instrucción de Suma"
     = _* "ADD"i _* rd:reg64 _* "," _* src1:reg64 _* "," _* src2:operand64 _* comment? "\n"?
 
     / _* "ADD"i _* rd:reg32 _* "," _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
+
+// Instruccions ands
+ands_inst 'Instrucción de ands'
+  = _* 'ANDS'i _* rd:reg64_or_reg32 ', ' rd1:reg64_or_reg32 ', ' rd3:immediate _* comment? "\n"?
 
 // Instrucciones de Resta 64 bits y 32 bits (SUB)  
 sub_inst
@@ -223,6 +232,14 @@ cmp_inst "Instrucción CMP"
 
     / _* "CMP"i _* src1:reg32 _* "," _* src2:operand32 _* comment? "\n"?
 
+// Instrucción registro  (CSEL)
+csel_inst 'Instruccion CSEL'
+  = _* 'csel'i _* rn0:reg64_or_reg32 ', '  _* rn1:reg64_or_reg32 ', '  _* rn3:reg64_or_reg32 ', '  cond _* comment? "\n"?
+
+// Instucción de select (CST)
+cset_inst 
+  = _* 'cset' _* rn0:reg32 ', ' cond _* comment? "\n"?
+
 // Instrucción Branch (B)
 b_inst "Instrucción B"
     = _* "B"i _* l:label _* comment? "\n"?
@@ -230,6 +247,9 @@ b_inst "Instrucción B"
 // Instrucción Branch with Link (BL)
 bl_inst "Instrucción BL"
     = _* "BL"i _* l:label _* comment? "\n"?
+
+ble_inst
+  = _* 'BLE'i _* label _* comment? "\n"?
 
 // Instrucción Retornar de Subrutina (RET)
 ret_inst "Instrucción RET"
@@ -257,7 +277,8 @@ svc_inst "Instrucción SVC"
 
 // Instruccion de (UTXB)
 uxtb_inst 'instruccion uxtb' 
-    = _* 'UXTB'i _* i64:reg64 ',' _* i32:reg32
+    = _* 'UXTB'i _* i64:reg64 ',' _* i32:reg32  _* comment? "\n"?
+
 
 // Registros de propósito general 64 bits (limitado a los registros válidos de ARM64)
 reg64 "Registro_64_Bits"
@@ -313,6 +334,9 @@ extend_op "Operador de Extensión"
     / "SXTW"i 
 
     / "SXTX"i
+// condicional 
+cond 'condicional_csel'
+  = 'eq'i / 'ne'i / 'gt'i / 'ge'i / 'lt'i / 'le'i / 'hi'i / 'ls'i 
 
 // Definición de valores inmediatos
 immediate "Inmediato"
